@@ -31,7 +31,7 @@ public class SpamService {
         for (CompletableFuture<ResponseEntity<UUID>> future : futures) {
             try {
                 eventIds.add(future.get().getBody());
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (NullPointerException | InterruptedException | ExecutionException e) {
                 System.out.println("Exception occurred whilst unwrapping future: \n" + e);
             }
         }
