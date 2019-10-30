@@ -1,6 +1,5 @@
 package com.a.spammer.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ public class SpamService {
 
         for (int i = 0; i < amount; i++) {
             UUID uuid = UUID.randomUUID();
-            System.out.println("Sending UUID: " + uuid.toString());
             futures.add(asyncEventClient.sendRequest(uuid));
         }
 

@@ -41,7 +41,7 @@ public class AsyncEventClientTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         httpEntity = new HttpEntity<>(uuid, headers);
 
-        when(restTemplate.exchange(victimUrl, HttpMethod.POST, httpEntity, UUID.class))
+        when(restTemplate.postForEntity(victimUrl, httpEntity, UUID.class))
                 .thenReturn(ResponseEntity.ok(uuid));
 
     }
@@ -49,7 +49,7 @@ public class AsyncEventClientTest {
     @Test
     public void sendRequestCallsRestTemplate() {
         actualresponse = asyncEventClient.sendRequest(uuid);
-        verify(restTemplate).exchange(victimUrl, HttpMethod.POST, httpEntity, UUID.class);
+        verify(restTemplate).postForEntity(victimUrl, httpEntity, UUID.class);
     }
 
     @Test
@@ -61,10 +61,8 @@ public class AsyncEventClientTest {
 
     @Test
     public void sendRequestIgnoresExceptions(){
-        when(restTemplate.exchange(victimUrl, HttpMethod.POST, httpEntity, UUID.class))
+        when(restTemplate.postForEntity(victimUrl, httpEntity, UUID.class))
                 .thenThrow(new HttpServerErrorException(HttpStatus.I_AM_A_TEAPOT));
         actualresponse = asyncEventClient.sendRequest(uuid);
-
-
     }
 }

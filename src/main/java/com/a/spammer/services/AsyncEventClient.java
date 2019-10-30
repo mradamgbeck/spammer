@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class AsyncEventClient {
 
-    @Value("$(victim-service-host)")
+    @Value("${victim-service-host}")
     private String victimUrl;
 
     @Autowired
@@ -24,9 +24,10 @@ public class AsyncEventClient {
     public CompletableFuture<ResponseEntity<UUID>> sendRequest(UUID uuid) {
         ResponseEntity<UUID> responseEntity = ResponseEntity.ok(null);
         try {
-            responseEntity = restTemplate.exchange(victimUrl, HttpMethod.POST, buildEntity(uuid), UUID.class);
+            System.out.println("Sending UUID: " + uuid.toString() + " to url: " + victimUrl);
+            responseEntity = restTemplate.postForEntity(victimUrl, buildEntity(uuid), UUID.class);
         } catch (Exception e) {
-            System.out.println("Encountered exception when sending request.");
+            System.out.println("Encountered exception when sending request: " + e.getMessage());
         }
         return CompletableFuture.completedFuture(responseEntity);
     }
