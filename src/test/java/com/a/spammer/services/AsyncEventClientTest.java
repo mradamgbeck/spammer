@@ -9,15 +9,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.*;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AsyncEventClientTest {
@@ -32,7 +31,6 @@ public class AsyncEventClientTest {
     private HttpEntity httpEntity;
     private UUID uuid;
     private HttpHeaders headers;
-    private CompletableFuture<ResponseEntity<UUID>> expectedResponse;
 
     @Before
     public void setup() {
@@ -42,17 +40,31 @@ public class AsyncEventClientTest {
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         httpEntity = new HttpEntity<>(uuid, headers);
-        actualresponse = asyncEventClient.sendRequest(uuid);
+
+        when(restTemplate.exchange(victimUrl, HttpMethod.POST, httpEntity, UUID.class))
+                .thenReturn(ResponseEntity.ok(uuid));
+
     }
 
     @Test
     public void sendRequestCallsRestTemplate() {
+        actualresponse = asyncEventClient.sendRequest(uuid);
         verify(restTemplate).exchange(victimUrl, HttpMethod.POST, httpEntity, UUID.class);
     }
 
     @Test
     @SneakyThrows
-    public void sendRequestReturnsFuture() {
+    public void sendRequestReturnsFutureWithUuid() {
+        actualresponse = asyncEventClient.sendRequest(uuid);
         assertEquals(uuid, actualresponse.get().getBody());
+    }
+
+    @Test
+    public void sendRequestIgnoresExceptions(){
+        when(restTemplate.exchange(victimUrl, HttpMethod.POST, httpEntity, UUID.class))
+                .thenThrow(new HttpServerErrorException(HttpStatus.I_AM_A_TEAPOT));
+        actualresponse = asyncEventClient.sendRequest(uuid);
+
+
     }
 }

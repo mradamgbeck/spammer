@@ -22,9 +22,13 @@ public class AsyncEventClient {
 
     @Async("asyncExecutor")
     public CompletableFuture<ResponseEntity<UUID>> sendRequest(UUID uuid) {
-        return CompletableFuture.completedFuture(
-                restTemplate.exchange(victimUrl, HttpMethod.POST, buildEntity(uuid), UUID.class)
-        );
+        ResponseEntity<UUID> responseEntity = ResponseEntity.ok(null);
+        try {
+            responseEntity = restTemplate.exchange(victimUrl, HttpMethod.POST, buildEntity(uuid), UUID.class);
+        } catch (Exception e) {
+            System.out.println("Encountered exception when sending request.");
+        }
+        return CompletableFuture.completedFuture(responseEntity);
     }
 
     private HttpEntity<UUID> buildEntity(UUID uuid) {
